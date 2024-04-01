@@ -104,7 +104,7 @@ func OtpGetByTokenStore(ctx context.Context, token string) (*models.Otp, *faulte
 }
 
 // Update User
-func UpdateOtpStore(ctx context.Context, tx pgx.Tx, arg models.Otp) *faulterr.FaultErr {
+func UpdateOtpStore(ctx context.Context, tx pgx.Tx, arg *models.Otp) *faulterr.FaultErr {
 	errMsg := "error when trying to update user"
 
 	queryStmt := `

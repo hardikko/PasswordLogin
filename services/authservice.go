@@ -35,8 +35,9 @@ func LoginCreateService(ctx context.Context, req models.Login) (*models.Author, 
 	if req.PasswordHash != obj.PasswordHash {
 		return nil, err
 	}
-	tokenUUID, err := uuid.DefaultGenerator.NewV4()
-	if err != nil {
+
+	tokenUUID, err_ := uuid.DefaultGenerator.NewV4()
+	if err_ != nil {
 		return nil, err
 	}
 
@@ -91,7 +92,7 @@ func Login(ctx context.Context, tx pgx.Tx, req *models.Login) (*models.Auther, *
 
 	// get otp from db and validate
 	otp, err := store.OtpGetByTokenStore(ctx, req.OTP)
-	errMsg := "error when trying to get otp from db"
+
 	if err != nil {
 		if err.Status == http.StatusNotFound {
 			return nil, faulterr.NewFrobiddenError("otp is invalid")
@@ -102,12 +103,12 @@ func Login(ctx context.Context, tx pgx.Tx, req *models.Login) (*models.Auther, *
 		return nil, faulterr.NewUnauthorizedError("	otp is not valid")
 	}
 	if err := helpers.ValidateTokenExpiry(otp.ExpiresAt); err != nil {
-		return nil, faulterr.NewPostgresError(err, errMsg)
+		return nil, err
 	}
 
 	// update otp validity
 	otp.IsValid = false
-	if err := store.UpdateOtpStore(ctx, tx, *otp); err != nil {
+	if err := store.UpdateOtpStore(ctx, tx, otp); err != nil {
 		return nil, err
 	}
 
